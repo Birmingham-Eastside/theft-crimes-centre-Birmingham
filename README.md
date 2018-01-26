@@ -22,6 +22,8 @@ The information was gathered from the <a href="https://data.police.uk/docs/" tar
   </li>
   <li><a href="https://github.com/Birmingham-Eastside/theft-crimes-centre-Birmingham/blob/master/Crime%20analysis.Rmd">R Notebook about the process to analyse</a> the information and the decision taken to write the story. 
   </li>
+   <li>CSV:<a href="https://github.com/Birmingham-Eastside/theft-crimes-centre-Birmingham/blob/master/crimeclean.csv"> Crimes in Birmingham city centre between January and November 2017</a>. The file contains the final database we worked with. 
+  </li>
   </ul>
 
 # Visualisation
