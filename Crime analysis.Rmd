@@ -1,0 +1,363 @@
+---
+title: "Crime analysis"
+output: html_notebook
+---
+
+We analyse now the dataset we cleaned before.
+
+```{r}
+summary(crimeClean)
+```
+
+# Total
+
+<strong>By crime</strong>
+
+```{r}
+crimeClean %>% count(type) %>% mutate(proportionType = n/sum(n)) %>% arrange(proportionType)
+```
+
+Sum categories related to steal:
+bicycle-theft, burglary, robbery, theft-from-the-person, other-theft, shoplifting
+
+```{r}
+#Storing in an object to download it
+ProportionType <- crimeClean %>% count(type) %>% mutate(proportionType = n/sum(n)) %>% arrange(proportionType)
+write.csv(ProportionType, "proportiontype.csv")
+```
+
+
+The proportion of these six categories is:
+```{r}
+0.012398610+0.037195829+0.041251448+0.051738123+0.102780997+0.118713789
+```
+Our stealing category is 36.4% from the total of crimes. 
+
+<strong>By wards</strong>
+
+```{r}
+crimeClean %>% count(ward) %>% mutate(proportionWard = n/sum(n))
+```
+
+<strong>By month</strong>
+
+```{r}
+crimeClean %>% count(month) %>% mutate(proportionMonth = n/sum(n)) %>% mutate(diffCrimes = c(NA, diff(n))) %>% mutate(changeCrimes = diffCrimes / lag(n))
+```
+
+```{r}
+#Store to download
+evolutionTotal <- crimeClean %>% count(month) %>% mutate(proportionMonth = n/sum(n)) %>% mutate(diffCrimes = c(NA, diff(n))) %>% mutate(changeCrimes = diffCrimes / lag(n))
+write.csv(evolutionTotal, "evolutiontotal.csv")
+```
+
+
+```{r}
+crimeClean %>% filter(month == "2017-01" | month == "2017-11") %>% count(month) %>% mutate(diffCrimes = c(NA, diff(n))) %>% mutate(changeCrimes = diffCrimes / lag(n))
+```
+
+4% of increase in November compared to October, but 12% more crimes in november than at the beginning of the year
+
+# Evolution per ward
+
+<strong>ASTON</stong>
+
+```{r}
+crimeClean %>% filter(ward == "Aston") %>% select(type, month, ward) %>% count(type) %>% mutate(proporTypeAston = n/sum(n)) %>% arrange(proporTypeAston)
+```
+
+```{r}
+crimeClean %>% filter(ward == "Aston") %>% select(type, month, ward) %>% count(month) %>% mutate(diffaston = c(NA, diff(n))) %>% mutate(changeaston = diffaston / lag(n)) 
+```
+```{r}
+crimeClean %>% filter(month == "2017-01" & ward == "Aston" | month == "2017-11" & ward == "Aston") %>% count(month) %>% mutate(diffCrimes = c(NA, diff(n))) %>% mutate(changeCrimes = diffCrimes / lag(n))
+```
+
+<strong>EDGBASTON</stong>
+
+```{r}
+crimeClean %>% filter(ward == "Edgbaston") %>% select(type, month, ward) %>% count(type) %>% mutate(proporTypeEdg = n/sum(n)) %>% arrange(proporTypeEdg)
+```
+```{r}
+crimeClean %>% filter(ward == "Edgbaston") %>% select(type, month, ward) %>% count(month) %>% mutate(diffEdgb = c(NA, diff(n))) %>% mutate(changeEdgb = diffEdgb / lag(n))
+```
+```{r}
+crimeClean %>% filter(month == "2017-01" & ward == "Edgbaston" | month == "2017-11" & ward == "Edgbaston") %>% count(month) %>% mutate(diffCrimes = c(NA, diff(n))) %>% mutate(changeCrimes = diffCrimes / lag(n))
+```
+
+
+<strong>LADYWOOD</stong>
+
+```{r}
+crimeClean %>% filter(ward == "Ladywood") %>% select(type, month, ward) %>% count(type) %>% mutate(proporTypeLadywood = n/sum(n)) %>% arrange(proporTypeLadywood)
+```
+```{r}
+0.163507926+0.094417643+0.055737422+0.036784976+0.034545141+0.013525155
+```
+40% of the total crimes in Ladywood were related to the steal category. 
+
+```{r}
+crimeClean %>% filter(ward == "Ladywood") %>% select(type, month, ward) %>% count(month) %>% mutate(diffLady = c(NA, diff(n))) %>% mutate(changeLady = diffLady / lag(n))
+```
+
+Evolution steal category only
+
+```{r}
+crimeClean %>% filter(ward == "Ladywood" & type %in% c("bicycle-theft", "other-theft","robbery","theft-from-the-person", "burglary","shoplifting")) %>% select(type, month, ward) %>% count(month) %>% mutate(diffLadySteal = c(NA, diff(n))) %>% mutate(changeLadySteal = diffLadySteal / lag(n))
+```
+
+```{r}
+crimeClean %>% filter(month == "2017-01" & ward == "Ladywood" | month == "2017-11" & ward == "Ladywood") %>% count(month) %>% mutate(diffCrimes = c(NA, diff(n))) %>% mutate(changeCrimes = diffCrimes / lag(n))
+```
+```{r}
+crimeClean %>% filter(month == "2017-01" & ward == "Ladywood" & type %in% c("bicycle-theft", "other-theft","robbery","theft-from-the-person", "burglary","shoplifting") | month == "2017-11" & ward == "Ladywood" & type %in% c("bicycle-theft", "other-theft","robbery","theft-from-the-person", "burglary","shoplifting")) %>% count(month) %>% mutate(diffCrimesSteal = c(NA, diff(n))) %>% mutate(changeCrimesSteal = diffCrimesSteal / lag(n))
+```
+
+
+<strong>NECHELLS</stong>
+```{r}
+crimeClean %>% filter(ward == "Nechells") %>% select(type, month, ward) %>% count(type) %>% mutate(proporTypeNech = n/sum(n)) %>% arrange(proporTypeNech)
+```
+
+```{r}
+0.011928429+0.022614314+0.036530815+0.055666004+0.057405567+0.104125249
+```
+28.9% of the total crimes in Nechelles corresponds to the stealing category. 
+
+```{r}
+crimeClean %>% filter(ward == "Nechells") %>% select(type, month, ward) %>% count(month) %>% mutate(diffNech = c(NA, diff(n))) %>% mutate(changeNech = diffNech / lag(n))
+```
+
+Evolution of the steal category in Nechells
+```{r}
+crimeClean %>% filter(ward == "Nechells" & type %in% c("bicycle-theft", "other-theft","robbery","theft-from-the-person", "burglary","shoplifting")) %>% select(type, month, ward) %>% count(month) %>% mutate(diffNecSteal = c(NA, diff(n))) %>% mutate(changeNecSteal = diffNecSteal / lag(n))
+```
+
+
+```{r}
+crimeClean %>% filter(month == "2017-01" & ward == "Nechells" | month == "2017-11" & ward == "Nechells") %>% count(month) %>% mutate(diffCrimes = c(NA, diff(n))) %>% mutate(changeCrimes = diffCrimes / lag(n))
+```
+```{r}
+crimeClean %>% filter(month == "2017-01" & ward == "Nechells" & type %in% c("bicycle-theft", "other-theft","robbery","theft-from-the-person", "burglary","shoplifting") | month == "2017-11" & ward == "Nechells" & type %in% c("bicycle-theft", "other-theft","robbery","theft-from-the-person", "burglary","shoplifting")) %>% count(month) %>% mutate(diffCrimes = c(NA, diff(n))) %>% mutate(changeCrimes = diffCrimes / lag(n))
+```
+
+<strong>SOHO</stong>
+
+```{r}
+crimeClean %>% filter(ward == "Soho") %>% select(type, month, ward) %>% count(type) %>% mutate(proporTypeSoho = n/sum(n)) %>% arrange(proporTypeSoho)
+```
+```{r}
+crimeClean %>% filter(ward == "Soho") %>% select(type, month, ward) %>% count(month) %>% mutate(diffSoho = c(NA, diff(n))) %>% mutate(changeSoho = diffSoho / lag(n))
+```
+```{r}
+crimeClean %>% filter(month == "2017-01" & ward == "Soho" | month == "2017-11" & ward == "Soho") %>% count(month) %>% mutate(diffCrimes = c(NA, diff(n))) %>% mutate(changeCrimes = diffCrimes / lag(n))
+```
+
+# Evolution each type
+
+<strong>ANTISOCIAL BEHAVIOUR</strong>
+
+```{r}
+crimeClean %>% filter(type == "anti-social-behaviour") %>% count(month) %>% mutate(diffSocial = c(NA, diff(n))) %>% mutate(changeSocial = diffSocial / lag(n))
+```
+```{r}
+crimeClean %>% filter(type == "anti-social-behaviour" & month == "2017-01" | type == "anti-social-behaviour" & month == "2017-11") %>% count(month) %>% mutate(diffSocial = c(NA, diff(n))) %>% mutate(changeSocial = diffSocial / lag(n))
+```
+
+<strong>BICYCLE THEFT</strong>
+
+```{r}
+crimeClean %>% filter(type == "bicycle-theft") %>% count(month) %>% mutate(diffBike = c(NA, diff(n))) %>% mutate(changeBike = diffBike / lag(n))
+```
+```{r}
+crimeClean %>% filter(type == "bicycle-theft" & month == "2017-01" | type == "bicycle-theft" & month == "2017-11") %>% count(month) %>% mutate(diffBike = c(NA, diff(n))) %>% mutate(changeBike = diffBike / lag(n))
+```
+
+<strong>BURGLARY</strong>
+```{r}
+crimeClean %>% filter(type == "burglary") %>% count(month) %>% mutate(diffBurg = c(NA, diff(n))) %>% mutate(changeBurg = diffBurg / lag(n))
+```
+
+```{r}
+crimeClean %>% filter(type == "burglary" & month == "2017-01" | type == "burglary" & month == "2017-11") %>% count(month) %>% mutate(diffBurg = c(NA, diff(n))) %>% mutate(changeBurg = diffBurg / lag(n))
+```
+
+<strong>CRIMINAL DAMAGE ARSON</strong>
+
+```{r}
+crimeClean %>% filter(type == "criminal-damage-arson") %>% count(month) %>% mutate(diffCrim = c(NA, diff(n))) %>% mutate(changeCrim = diffCrim / lag(n))
+```
+
+```{r}
+crimeClean %>% filter(type == "criminal-damage-arson" & month == "2017-01" | type == "criminal-damage-arson" & month == "2017-11") %>% count(month) %>% mutate(diffCrim = c(NA, diff(n))) %>% mutate(changeCrim = diffCrim / lag(n))
+```
+
+<strong>DRUGS</strong>
+
+```{r}
+crimeClean %>% filter(type == "drugs") %>% count(month) %>% mutate(diffDrugs = c(NA, diff(n))) %>% mutate(changeDrugs = diffDrugs / lag(n))
+```
+```{r}
+crimeClean %>% filter(type == "drugs" & month == "2017-01" | type == "drugs" & month == "2017-11") %>% count(month) %>% mutate(diffDrugs = c(NA, diff(n))) %>% mutate(changeDrugs = diffDrugs / lag(n))
+```
+
+
+<strong>OTHER THEFT</strong>
+```{r}
+crimeClean %>% filter(type == "other-theft") %>% count(month) %>% mutate(diffOthertheft = c(NA, diff(n))) %>% mutate(changeOthertheft = diffOthertheft / lag(n))
+```
+```{r}
+crimeClean %>% filter(type == "other-theft" & month == "2017-01" | type == "other-theft" & month == "2017-11") %>% count(month) %>% mutate(diffOthertheft = c(NA, diff(n))) %>% mutate(changeOthertheft = diffOthertheft / lag(n))
+```
+
+<strong>POSSESSION OF WEAPONS</strong>
+```{r}
+crimeClean %>% filter(type == "possession-of-weapons") %>% count(month) %>% mutate(diffweapons = c(NA, diff(n))) %>% mutate(changeweapons = diffweapons / lag(n))
+```
+
+```{r}
+crimeClean %>% filter(type == "possession-of-weapons" & month == "2017-01" | type == "possession-of-weapons" & month == "2017-11") %>% count(month) %>% mutate(diffweapons = c(NA, diff(n))) %>% mutate(changeweapons = diffweapons / lag(n))
+```
+
+
+<strong>PUBLIC ORDER</strong>
+```{r}
+crimeClean %>% filter(type == "public-order") %>% count(month) %>% mutate(diffPublic = c(NA, diff(n))) %>% mutate(changePublic = diffPublic / lag(n))
+```
+
+
+```{r}
+crimeClean %>% filter(type == "public-order" & month == "2017-01" | type == "public-order" & month == "2017-11") %>% count(month) %>% mutate(diffPublic = c(NA, diff(n))) %>% mutate(changePublic = diffPublic / lag(n))
+```
+
+
+<strong>ROBBERY</strong>
+```{r}
+crimeClean %>% filter(type == "robbery") %>% count(month) %>% mutate(diffRob = c(NA, diff(n))) %>% mutate(changeRob = diffRob / lag(n))
+```
+
+
+```{r}
+crimeClean %>% filter(type == "robbery" & month == "2017-01" | type == "robbery" & month == "2017-11") %>% count(month) %>% mutate(diffRob = c(NA, diff(n))) %>% mutate(changeRob = diffRob / lag(n))
+```
+
+<strong>SHOPLIFTING</strong>
+```{r}
+crimeClean %>% filter(type == "shoplifting") %>% count(month) %>% mutate(diffshop = c(NA, diff(n))) %>% mutate(changeshop = diffshop / lag(n))
+```
+
+```{r}
+crimeClean %>% filter(type == "shoplifting" & month == "2017-01" | type == "shoplifting" & month == "2017-11") %>% count(month) %>% mutate(diffshop = c(NA, diff(n))) %>% mutate(changeshop = diffshop / lag(n))
+```
+
+
+<strong>THEFT FROM THE PERSON</strong>
+```{r}
+crimeClean %>% filter(type == "theft-from-the-person") %>% count(month) %>% mutate(difftheft_person = c(NA, diff(n))) %>% mutate(changetheft_person = difftheft_person / lag(n))
+```
+```{r}
+crimeClean %>% filter(type == "theft-from-the-person" & month == "2017-01" | type == "theft-from-the-person" & month == "2017-11") %>% count(month) %>% mutate(difftheft_person = c(NA, diff(n))) %>% mutate(changetheft_person = difftheft_person / lag(n))
+```
+
+
+<strong>VEHICLE CRIMES</strong>
+```{r}
+crimeClean %>% filter(type == "vehicle-crime") %>% count(month) %>% mutate(diffvehicle = c(NA, diff(n))) %>% mutate(changevehicle = diffvehicle / lag(n))
+```
+```{r}
+crimeClean %>% filter(type == "vehicle-crime" & month == "2017-01" | type == "vehicle-crime" & month == "2017-11") %>% count(month) %>% mutate(diffvehicle = c(NA, diff(n))) %>% mutate(changevehicle = diffvehicle / lag(n))
+```
+
+
+<strong>VIOLENT CRIMES</strong>
+```{r}
+crimeClean %>% filter(type == "violent-crime") %>% count(month) %>% mutate(diffviolent = c(NA, diff(n))) %>% mutate(changeviolent = diffviolent / lag(n))
+```
+```{r}
+crimeClean %>% filter(type == "violent-crime" & month == "2017-01" | type == "violent-crime" & month == "2017-11") %>% count(month) %>% mutate(diffviolent = c(NA, diff(n))) %>% mutate(changeviolent = diffviolent / lag(n))
+```
+
+
+<strong>OTHER CRIMES</strong>
+```{r}
+crimeClean %>% filter(type == "other-crime") %>% count(month) %>% mutate(diffOther = c(NA, diff(n))) %>% mutate(changeOther = diffOther / lag(n))
+```
+
+```{r}
+crimeClean %>% filter(type == "other-crime" & month == "2017-01" | type == "other-crime" & month == "2017-11") %>% count(month) %>% mutate(diffOther = c(NA, diff(n))) %>% mutate(changeOther = diffOther / lag(n))
+```
+
+
+# Steal category
+
+We are interested in thefts (robbery, other theft and bicycle theft).
+
+<strong>Total</strong>
+```{r}
+crimeClean %>% filter(type %in% c("bicycle-theft", "other-theft","robbery","theft-from-the-person", "burglary","shoplifting")) %>% count(type) %>% mutate(proportiontheft = n/sum(n)) %>% arrange(proportiontheft)
+```
+From the total steal category, the highest proportion is shoplifting. 
+
+```{r}
+#Download
+stealproportion <- crimeClean %>% filter(type %in% c("bicycle-theft", "other-theft","robbery","theft-from-the-person", "burglary","shoplifting")) %>% count(type) %>% mutate(proportiontheft = n/sum(n)) %>% arrange(proportiontheft)
+write.csv(stealproportion, "stealproportion.csv")
+```
+
+<strong>By ward</strong>
+```{r}
+crimeClean %>% filter(type %in% c("bicycle-theft","shoplifting","other-theft","robbery","theft-from-the-person","burglary")) %>% count(ward) %>% mutate(proportionward = n/sum(n))
+```
+
+
+<strong>By month</strong>
+```{r}
+crimeClean %>% filter(type %in% c("bicycle-theft", "other-theft","robbery", "theft-from-the-person","burglary","shoplifting")) %>% count(month) %>% mutate(difftheft = c(NA, diff(n))) %>% mutate(changetheft = difftheft / lag(n))
+```
+
+```{r}
+evolutionsteal <- crimeClean %>% filter(type %in% c("bicycle-theft", "other-theft","robbery", "theft-from-the-person","burglary","shoplifting")) %>% count(month) %>% mutate(difftheft = c(NA, diff(n))) %>% mutate(changetheft = difftheft / lag(n))
+write.csv(evolutionsteal, "evolutionsteal.csv")
+```
+
+```{r}
+crimeClean %>% filter(type %in% c("bicycle-theft", "other-theft","robbery", "theft-from-the-person","burglary","shoplifting") & month == "2017-01" | type %in% c("bicycle-theft", "other-theft","robbery","theft-from-the-person","burglary","shoplifting") & month == "2017-11") %>% count(month) %>% mutate(diffSocial = c(NA, diff(n))) %>% mutate(changeSocial = diffSocial / lag(n))
+```
+In November, the stealing category increased by 12% compared to the previous month. 
+Compared to January 2017, the growth was by 14%.
+
+
+## Table evolution per category 
+```{r}
+cbind(freq = as.vector(table(crimeClean$type)))
+```
+
+
+
+```{r}
+crimeClean %>% select(month,type) %>% group_by(month) %>% count(type)
+```
+```{r}
+categorymonth <- crimeClean %>% select(month,type) %>% group_by(month) %>% count(type)
+#Download
+write.csv(categorymonth, "categorymonth.csv")
+```
+
+```{r}
+write.csv(crimeClean, "crimeclean.csv")
+```
+
+
+## Types of stealing category
+
+<strong>Wards</strong>
+```{r}
+crimeClean %>% select(ward,type) %>% group_by(ward) %>% filter(type %in% c("bicycle-theft", "other-theft","robbery", "theft-from-the-person","burglary")) %>% mutate(bicycle = sum(type == "bicycle-theft"),other = sum(type == "other-theft"), robbery = sum(type == "robbery"), person = sum(type == "theft-from-the-person"),burglary = sum(type == "burglary"))
+```
+
+
+
+
+
+
+

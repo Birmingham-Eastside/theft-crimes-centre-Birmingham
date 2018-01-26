@@ -1,0 +1,247 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+API West Midlands Police
+
+Store URL from the West Midland Police and use Jsonlite
+
+```{r}
+url <- "https://data.police.uk/api/crimes-street/all-crime?lat=52.48142&lng=-1.89983&date=2017-11"
+```
+
+```{r}
+jsoneg <- fromJSON(url)
+```
+
+
+```{r}
+summary(jsoneg)
+```
+
+
+
+```{r}
+colnames(jsoneg)
+```
+
+```{r}
+jsoneg %>% count(category)
+```
+```{r}
+jsoneg %>% count(location)
+```
+
+
+## MORE MONTHS
+
+Storing the vector with the dates for the whole year.
+```{r}
+dates <- c("2017-11", "2017-10", "2017-09", "2017-08", "2017-07", "2017-06", "2017-05", "2017-04", "2017-03", "2017-02", "2017-01")
+```
+
+Creating the loop
+
+```{r}
+resultslist = c()
+for (i in dates){
+  #store the full url in an object
+  url <- paste("https://data.police.uk/api/crimes-street/all-crime?lat=52.48142&lng=-1.89983&date=",i, sep="")
+  #grab the JSON
+  jsoneg <- fromJSON(url)
+  print(jsoneg[['category']])
+  category <- jsoneg[['category']]
+  resultslist = c(resultslist, category)
+}
+```
+
+```{r}
+resultslist2 = c()
+for (i in dates){
+  #store the full url in an object
+  url <- paste("https://data.police.uk/api/crimes-street/all-crime?lat=52.48142&lng=-1.89983&date=",i, sep="")
+  #grab the JSON
+  jsoneg <- fromJSON(url)
+  print(jsoneg[['location']][['street']][['name']])
+  location <- jsoneg[['location']][['street']][['name']]
+  resultslist2 = c(resultslist2, location)
+}
+```
+
+
+```{r}
+resultlist4 = c()
+for (i in dates){
+  #store the full url in an object
+  url <- paste("https://data.police.uk/api/crimes-street/all-crime?lat=52.48142&lng=-1.89983&date=",i, sep="")
+  #grab the JSON
+  jsoneg <- fromJSON(url)
+  print(jsoneg[['location']][['latitude']])
+  latitude <- jsoneg[['location']][['latitude']]
+  resultlist4 = c(resultlist4, latitude)
+}
+```
+
+```{r}
+resultlist5 = c()
+for (i in dates){
+  #store the full url in an object
+  url <- paste("https://data.police.uk/api/crimes-street/all-crime?lat=52.48142&lng=-1.89983&date=",i, sep="")
+  #grab the JSON
+  jsoneg <- fromJSON(url)
+  print(jsoneg[['location']][['longitude']])
+ longitude <- jsoneg[['location']][['longitude']]
+  resultlist5 = c(resultlist5, longitude)
+}
+```
+
+
+
+```{r}
+resultslist3 = c()
+for (i in dates){
+  #store the full url in an object
+  url <- paste("https://data.police.uk/api/crimes-street/all-crime?lat=52.48142&lng=-1.89983&date=",i, sep="")
+  #grab the JSON
+  jsoneg <- fromJSON(url)
+  print(jsoneg[['month']])
+  date <- jsoneg[['month']]
+  resultslist3 = c(resultslist3, date)
+}
+```
+
+
+I create now a table
+
+```{r}
+crime <- data.frame(resultslist, resultslist2, resultslist3, resultlist4, resultlist5)
+colnames(crime) <- c("type", "street", "month", "latitude", "longitude")
+write.csv(crime, "crime2.csv")
+```
+
+
+
+```{r}
+crime %>% select(type, street, month, latitude, longitude) %>% filter(latitude == "52.491832")
+```
+
+
+```{r}
+View(resultslist2)
+```
+
+
+## Getting wards from API postcode
+
+Using the latitude and longitude, we create the loop to get the wards from postcode API
+
+```{r}
+urlPostcode <- "https://api.postcodes.io/postcodes?lon=-1.89983&lat=52.48142"
+```
+
+Vector
+
+```{r}
+LatitudPostcode <- c(resultlist4)
+LongitudePostcode <- c(resultlist5)
+latlong <- paste(LongitudePostcode, LatitudPostcode, sep = "&lat=")
+#As we found that our second loop gave us more rows than the first one, we would be able to make a chart, so we found the errors
+error1 <- c("-1.889599&lat=52.491832", "-1.906500&lat=52.494813", "-1.898636&lat=52.468583", "-1.919150&lat=52.488439", "-1.889289&lat=52.492101", "-1.897946&lat=52.468151")
+latlong <- latlong[! latlong %in% error1]
+```
+
+```{r}
+latlong[1360]
+```
+
+```{r}
+length(which (latlong == "-1.897946&lat=52.468151"))
+```
+
+Test
+
+```{r}
+  urlPostcode <- paste("https://api.postcodes.io/postcodes?lon=", latlong[1], sep = "")
+  jsonegPostcodeEjemplo <- fromJSON(urlPostcode)
+  print(jsonegPostcode[['result']][['admin_county']][1])
+```
+
+```{r}
+pruebaVector <- c("-1.905632&lat=52.487836","-1.905632&lat=52.487836", "-1.905632&lat=52.487836")
+```
+
+
+
+```{r}
+pruebaLoop = c()
+for (i in pruebaVector){
+  urlPostcode <- paste("https://api.postcodes.io/postcodes?lon=",i, sep="")
+  jsonegPrueba <- fromJSON(urlPostcode)
+  print(jsonegPrueba[['result']][['admin_ward']][1])
+  ward <- jsonegPrueba[['result']][['admin_ward']][1]
+  pruebaLoop = c(pruebaLoop, ward)
+}
+```
+
+
+## Loop
+
+```{r}
+resultsPostcode = c()
+for (i in latlong){
+  #store the full url in an object
+  urlPostcode <- paste("https://api.postcodes.io/postcodes?lon=",i, sep="")
+  #grab the JSON
+  jsonegPostcode <- fromJSON(urlPostcode)
+  print(jsonegPostcode[['result']][['admin_ward']][1])
+  ward <- jsonegPostcode[['result']][['admin_ward']][1]
+  resultsPostcode = c(resultsPostcode, ward)
+}
+```
+
+We had less rows in this new vector, so we are going to try with admin_ward codes. 
+
+We did then a loop with an if/else condition. We were saying that if it couldn't print anything, then put "nada", so as to keep the same number of rows than the table above. But, we found out that using the word "nada" without quotation mark in the print made the loop stopped in the last row it could print a result. 
+We checked which latitude and longitude were in that result and tested it in the API postcodes and found that there were no result for that combination. 
+
+We changed and added the "nada" with quotation mark, but it gave us again less rows than our original crime dataset, so we continued to run the loop with "nada" without quotation mark to know which latitude and longitude were having problems. 
+
+```{r}
+resultsCode = c()
+for (i in latlong){
+
+  urlPostcode <- paste("https://api.postcodes.io/postcodes?lon=",i, sep="")
+
+  jsonegCode <- fromJSON(urlPostcode)
+  if (
+    is.null(jsonegCode[['result']])) {
+  print(nada)}
+    else { print(jsonegCode[['result']][['codes']][['admin_ward']][1])}
+  ward <- jsonegCode[['result']][['codes']][['admin_ward']][1]
+  resultsCode = c(resultsCode, ward)
+}
+```
+
+```{r}
+resultsCode[1163]
+```
+
+
+## Fixing crime table
+
+Delete rows with errors latitude and longitude in the original crime.
+
+```{r}
+crime <- crime %>% select(type, street, month, latitude, longitude) %>% filter(!((latitude == "52.491832" & longitude == "-1.889599")| (latitude == "52.494813" & longitude == "-1.906500") | (latitude == "52.468583" & longitude == "-1.898636") | (latitude == "52.488439" & longitude == "-1.919150") | (latitude == "52.492101" & longitude == "-1.889289") | (latitude == "52.468151" & longitude == "-1.897946") ))
+```
+
+
+
+Include results postcode (= wards) in crime
+
+```{r}
+crimeClean <- data.frame(crime, resultsPostcode)
+colnames(crimeClean)[6] <- "ward"
+```
+
